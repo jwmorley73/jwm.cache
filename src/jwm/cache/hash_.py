@@ -128,7 +128,7 @@ def persistent_hash(
             return value
 
         # Cycle, return random number proportional to the cycle number
-        cycler_factor = 873506627 # Something unusual
+        cycler_factor = 873506627  # Something unusual
         try:
             return _cyclers.index(id_) * cycler_factor
         except ValueError:
@@ -150,7 +150,7 @@ def persistent_hash(
             value = hash(obj) & MAX_HASH_MASK
         case builtins.bool:
             value = hash(obj) & MAX_HASH_MASK
-        case builtins.list: # mutable hash
+        case builtins.list:  # mutable hash
             value = (
                 collection_hash(
                     tuple(
@@ -178,7 +178,7 @@ def persistent_hash(
             value = hash_(obj.encode("utf-8")) & MAX_HASH_MASK
         case builtins.bytes:
             value = hash_(obj) & MAX_HASH_MASK
-        case builtins.bytearray: # mutable hash
+        case builtins.bytearray:  # mutable hash
             value = (
                 collection_hash(
                     tuple(
@@ -198,7 +198,7 @@ def persistent_hash(
                 )
                 & MAX_HASH_MASK
             )
-        case builtins.set: # mutable hash
+        case builtins.set:  # mutable hash
             value = (
                 collection_hash(
                     tuple(
@@ -218,7 +218,7 @@ def persistent_hash(
                 )
                 & MAX_HASH_MASK
             )
-        case builtins.dict: # mutable hash
+        case builtins.dict:  # mutable hash
             value = (
                 collection_hash(
                     tuple(
@@ -235,15 +235,15 @@ def persistent_hash(
                 obj.__qualname__, _history=_history, _cyclers=_cyclers
             )
         case _:
-            if hasattr(obj, "__persistent_hash__"): # Implements __persistent_hash__
+            if hasattr(obj, "__persistent_hash__"):  # Implements __persistent_hash__
                 value = obj.__persistent_hash__()
             elif obj is None:
-                value = -776769781 # Something unusual
+                value = -776769781  # Something unusual
             elif check_function(obj):
                 value = persistent_hash(
                     obj.__qualname__, _history=_history, _cyclers=_cyclers
                 )
-            else: # Fallback, attempt to create a hash from the objects attributes
+            else:  # Fallback, attempt to create a hash from the objects attributes
                 attribute_names = dir(obj)
                 attributes = tuple((a, getattr(obj, a)) for a in attribute_names)
 

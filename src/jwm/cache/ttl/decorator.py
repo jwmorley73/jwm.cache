@@ -5,8 +5,10 @@ import collections.abc
 import typing
 import uuid
 
+import jwm.cache.forward
 import jwm.cache.serializers
 import jwm.cache.ttl.cache
+import jwm.cache.ttl.default
 import jwm.cache.ttl.local
 import jwm.cache.ttl.wrapper
 
@@ -125,8 +127,8 @@ def ttl_cache(
     cache: (
         jwm.cache.ttl.cache.TTLCache
         | jwm.cache.ttl.cache.AsyncTTLCache
-        | typing.Literal["local", "async_local"]
-    ) = "local",
+        | typing.Literal["local", "async_local", "default"]
+    ) = "default",
     serializer: (
         jwm.cache.serializers.Serializer | typing.Literal["pickle", "json"]
     ) = "pickle",
@@ -171,9 +173,9 @@ def ttl_cache(
         identifier (str | None, optional): Used to allow multiple functions to
             share a cache. Defaults to a random string which isolates the
             functions.
-        cache (TTLCache | AsyncTTLCache | Literal["local", "async_local"], optional):
-            Cache where the values will be stored. Defaults to "local" (which
-            is a dict under the hood).
+        cache (TTLCache | AsyncTTLCache | Literal["local", "async_local", "default"], optional):
+            Cache where the values will be stored. Defaults to "default" (which
+            will use the global default).
         serializer (Serializer  |  Literal["pickle", "json"], optional):
             Serializer to use when creating keys and storing values in the
             cache. Defaults to "pickle".
@@ -200,6 +202,8 @@ def ttl_cache(
             cache = jwm.cache.ttl.local.LocalTTLCache()
         case "async_local":
             cache = jwm.cache.ttl.local.AsyncLocalTTLCache()
+        case "default":
+            cache = jwm.cache.ttl.default.DEFAULT_CACHE
         case _:
             pass
 
