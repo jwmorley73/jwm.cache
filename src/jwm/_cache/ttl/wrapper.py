@@ -7,10 +7,10 @@ import inspect
 import sys
 import typing
 
-import jwm.cache.hash_
-import jwm.cache.serializers
-import jwm.cache.sync
-import jwm.cache.ttl.cache
+import jwm._cache.hash_
+import jwm._cache.serializers
+import jwm._cache.sync
+import jwm._cache.ttl.cache
 
 
 class TTLInfo(typing.NamedTuple):
@@ -25,8 +25,8 @@ class TTLParameters(typing.NamedTuple):
     ttl_seconds: float
     typed: bool
     identifier: bytes
-    cache: jwm.cache.ttl.cache.TTLCache | jwm.cache.ttl.cache.AsyncTTLCache
-    serializer: jwm.cache.serializers.Serializer
+    cache: jwm._cache.ttl.cache.TTLCache | jwm._cache.ttl.cache.AsyncTTLCache
+    serializer: jwm._cache.serializers.Serializer
 
 
 P0 = typing.ParamSpec("P0")
@@ -42,8 +42,8 @@ class TTLWrapper(typing.Generic[P0, T0]):
         ttl_seconds: float,
         typed: bool,
         identifier: bytes,
-        cache: jwm.cache.ttl.cache.TTLCache | jwm.cache.ttl.cache.AsyncTTLCache,
-        serializer: jwm.cache.serializers.Serializer,
+        cache: jwm._cache.ttl.cache.TTLCache | jwm._cache.ttl.cache.AsyncTTLCache,
+        serializer: jwm._cache.serializers.Serializer,
     ) -> None:
         self: TTLWrapper[P0, T0] = functools.update_wrapper(self, func)
 
@@ -72,7 +72,7 @@ class TTLWrapper(typing.Generic[P0, T0]):
         bound.apply_defaults()
 
         # Get hash of bound arguments
-        hash_ = jwm.cache.hash_.hash_bound(
+        hash_ = jwm._cache.hash_.hash_bound(
             bound,
             typed=self._typed,
         ).to_bytes(sys.hash_info.width, "little")
@@ -81,7 +81,7 @@ class TTLWrapper(typing.Generic[P0, T0]):
         value = self._cache.get(self._identifier, hash_)
         if asyncio.iscoroutine(value):
             try:
-                value = jwm.cache.sync.run_coroutine_in_thread(value)
+                value = jwm._cache.sync.run_coroutine_in_thread(value)
             except RuntimeError as error:
                 raise RuntimeError(
                     "Cannot use AsyncTTLCache outside a running event loop."
@@ -101,7 +101,7 @@ class TTLWrapper(typing.Generic[P0, T0]):
         )
         if asyncio.iscoroutine(set_):
             try:
-                jwm.cache.sync.run_coroutine_in_thread(set_)
+                jwm._cache.sync.run_coroutine_in_thread(set_)
             except RuntimeError as error:
                 raise RuntimeError(
                     "Cannot use AsyncTTLCache outside a running event loop."
@@ -114,7 +114,7 @@ class TTLWrapper(typing.Generic[P0, T0]):
         size = self._cache.get_size(self._identifier)
         if asyncio.iscoroutine(size):
             try:
-                size = jwm.cache.sync.run_coroutine_in_thread(size)
+                size = jwm._cache.sync.run_coroutine_in_thread(size)
             except RuntimeError as error:
                 raise RuntimeError(
                     "Cannot use AsyncTTLCache outside a running event loop."
@@ -133,7 +133,7 @@ class TTLWrapper(typing.Generic[P0, T0]):
         clear = self._cache.clear(self._identifier)
         if asyncio.iscoroutine(clear):
             try:
-                jwm.cache.sync.run_coroutine_in_thread(clear)
+                jwm._cache.sync.run_coroutine_in_thread(clear)
             except RuntimeError as error:
                 raise RuntimeError(
                     "Cannot use AsyncTTLCache outside a running event loop."
@@ -165,8 +165,8 @@ class AsyncTTLWrapper(typing.Generic[P1, T1]):
         ttl_seconds: float,
         typed: bool,
         identifier: bytes,
-        cache: jwm.cache.ttl.cache.AsyncTTLCache | jwm.cache.ttl.cache.TTLCache,
-        serializer: jwm.cache.serializers.Serializer,
+        cache: jwm._cache.ttl.cache.AsyncTTLCache | jwm._cache.ttl.cache.TTLCache,
+        serializer: jwm._cache.serializers.Serializer,
     ) -> None:
         self: AsyncTTLWrapper[P1, T1] = functools.update_wrapper(self, func)
 
@@ -198,7 +198,7 @@ class AsyncTTLWrapper(typing.Generic[P1, T1]):
             bound = self._signature.bind(*args, **kwargs)
 
         # Get hash of bound arguments
-        hash_ = jwm.cache.hash_.hash_bound(
+        hash_ = jwm._cache.hash_.hash_bound(
             bound,
             typed=self._typed,
         ).to_bytes(sys.hash_info.width, "little")

@@ -1,16 +1,14 @@
-from __future__ import annotations
-
 import asyncio
 import collections.abc
 import typing
 import uuid
 
-import jwm.cache.forward
-import jwm.cache.serializers
-import jwm.cache.ttl.cache
-import jwm.cache.ttl.default
-import jwm.cache.ttl.local
-import jwm.cache.ttl.wrapper
+import jwm._cache.forward
+import jwm._cache.serializers
+import jwm._cache.ttl.cache
+import jwm._cache.ttl.default
+import jwm._cache.ttl.local
+import jwm._cache.ttl.wrapper
 
 P0 = typing.ParamSpec("P0")
 T0 = typing.TypeVar("T0")
@@ -24,8 +22,8 @@ class TTLDecorator:
         ttl_seconds: float,
         typed: bool,
         identifier: bytes,
-        cache: jwm.cache.ttl.cache.TTLCache | jwm.cache.ttl.cache.AsyncTTLCache,
-        serializer: jwm.cache.serializers.Serializer,
+        cache: jwm._cache.ttl.cache.TTLCache | jwm._cache.ttl.cache.AsyncTTLCache,
+        serializer: jwm._cache.serializers.Serializer,
     ) -> None:
         self._ttl_seconds = ttl_seconds
         self._typed = typed
@@ -39,12 +37,12 @@ class TTLDecorator:
         func: collections.abc.Callable[
             P0, collections.abc.Coroutine[typing.Any, typing.Any, T0]
         ],
-    ) -> jwm.cache.ttl.wrapper.AsyncTTLWrapper[P0, T0]: ...
+    ) -> jwm._cache.ttl.wrapper.AsyncTTLWrapper[P0, T0]: ...
 
     @typing.overload
     def __call__(
         self, func: collections.abc.Callable[P0, T0]
-    ) -> jwm.cache.ttl.wrapper.TTLWrapper[P0, T0]: ...
+    ) -> jwm._cache.ttl.wrapper.TTLWrapper[P0, T0]: ...
 
     def __call__(
         self,
@@ -55,11 +53,11 @@ class TTLDecorator:
             ]
         ),
     ) -> (
-        jwm.cache.ttl.wrapper.TTLWrapper[P0, T0]
-        | jwm.cache.ttl.wrapper.AsyncTTLWrapper[P0, T0]
+        jwm._cache.ttl.wrapper.TTLWrapper[P0, T0]
+        | jwm._cache.ttl.wrapper.AsyncTTLWrapper[P0, T0]
     ):
         if asyncio.iscoroutinefunction(func):
-            return jwm.cache.ttl.wrapper.AsyncTTLWrapper[P0, T0](
+            return jwm._cache.ttl.wrapper.AsyncTTLWrapper[P0, T0](
                 func,
                 self._ttl_seconds,
                 self._typed,
@@ -68,7 +66,7 @@ class TTLDecorator:
                 self._serializer,
             )
         else:
-            return jwm.cache.ttl.wrapper.TTLWrapper[P0, T0](
+            return jwm._cache.ttl.wrapper.TTLWrapper[P0, T0](
                 func,
                 self._ttl_seconds,
                 self._typed,
@@ -89,12 +87,12 @@ def ttl_cache(
     *,
     identifier: str | None = None,
     cache: (
-        jwm.cache.ttl.cache.TTLCache
-        | jwm.cache.ttl.cache.AsyncTTLCache
+        jwm._cache.ttl.cache.TTLCache
+        | jwm._cache.ttl.cache.AsyncTTLCache
         | typing.Literal["local", "async_local"]
     ) = "local",
     serializer: (
-        jwm.cache.serializers.Serializer | typing.Literal["pickle", "json"]
+        jwm._cache.serializers.Serializer | typing.Literal["pickle", "json"]
     ) = "pickle",
 ) -> TTLDecorator: ...
 
@@ -104,13 +102,13 @@ def ttl_cache(
     func: collections.abc.Callable[
         P1, collections.abc.Coroutine[typing.Any, typing.Any, T1]
     ]
-) -> jwm.cache.ttl.wrapper.AsyncTTLWrapper[P1, T1]: ...
+) -> jwm._cache.ttl.wrapper.AsyncTTLWrapper[P1, T1]: ...
 
 
 @typing.overload
 def ttl_cache(
     func: collections.abc.Callable[P1, T1]
-) -> jwm.cache.ttl.wrapper.TTLWrapper[P1, T1]: ...
+) -> jwm._cache.ttl.wrapper.TTLWrapper[P1, T1]: ...
 
 
 def ttl_cache(
@@ -125,17 +123,17 @@ def ttl_cache(
     *,
     identifier: str | None = None,
     cache: (
-        jwm.cache.ttl.cache.TTLCache
-        | jwm.cache.ttl.cache.AsyncTTLCache
+        jwm._cache.ttl.cache.TTLCache
+        | jwm._cache.ttl.cache.AsyncTTLCache
         | typing.Literal["local", "async_local", "default"]
     ) = "default",
     serializer: (
-        jwm.cache.serializers.Serializer | typing.Literal["pickle", "json"]
+        jwm._cache.serializers.Serializer | typing.Literal["pickle", "json"]
     ) = "pickle",
 ) -> (
     TTLDecorator
-    | jwm.cache.ttl.wrapper.TTLWrapper[P1, T1]
-    | jwm.cache.ttl.wrapper.AsyncTTLWrapper[P1, T1]
+    | jwm._cache.ttl.wrapper.TTLWrapper[P1, T1]
+    | jwm._cache.ttl.wrapper.AsyncTTLWrapper[P1, T1]
 ):
     """Function caching decorator with entries having a constrained Time To
     Live (TTL).
@@ -199,19 +197,19 @@ def ttl_cache(
 
     match cache:
         case "local":
-            cache = jwm.cache.ttl.local.LocalTTLCache()
+            cache = jwm._cache.ttl.local.LocalTTLCache()
         case "async_local":
-            cache = jwm.cache.ttl.local.AsyncLocalTTLCache()
+            cache = jwm._cache.ttl.local.AsyncLocalTTLCache()
         case "default":
-            cache = jwm.cache.ttl.default.DEFAULT_CACHE
+            cache = jwm._cache.ttl.default.DEFAULT_CACHE
         case _:
             pass
 
     match serializer:
         case "pickle":
-            serializer = jwm.cache.serializers.PickleSerializer()
+            serializer = jwm._cache.serializers.PickleSerializer()
         case "json":
-            serializer = jwm.cache.serializers.JsonSerializer()
+            serializer = jwm._cache.serializers.JsonSerializer()
         case _:
             pass
 

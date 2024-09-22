@@ -1,12 +1,10 @@
-from __future__ import annotations
-
 import asyncio
 import threading
 
-import jwm.cache.ttl.cache
+import jwm._cache.ttl.cache
 
 
-class LocalTTLCache(jwm.cache.ttl.cache.TTLCache):
+class LocalTTLCache(jwm._cache.ttl.cache.TTLCache):
     def __init__(self) -> None:
         self._cache: dict[bytes, dict[bytes, bytes]] = {}
         self._ttl_timers: dict[bytes, dict[bytes, threading.Timer]] = {}
@@ -64,7 +62,7 @@ class LocalTTLCache(jwm.cache.ttl.cache.TTLCache):
                 self._cache[namespace] = namespace_cache
 
 
-class AsyncLocalTTLCache(jwm.cache.ttl.cache.AsyncTTLCache):
+class AsyncLocalTTLCache(jwm._cache.ttl.cache.AsyncTTLCache):
     def __init__(self) -> None:
         self._cache: dict[bytes, dict[bytes, bytes]] = {}
         self._ttl_timers: dict[bytes, dict[bytes, asyncio.TimerHandle]] = {}

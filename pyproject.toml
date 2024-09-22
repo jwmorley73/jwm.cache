@@ -10,15 +10,18 @@ dependencies = []
 
 [project.optional-dependencies]
 redis = [
-    "redis",
+    "redis"
+]
+
+test = [
+    "pytest"
 ]
 
 format = [
     "isort",
-    "black",
+    "black"
 ]
 
 dev = [
-    "jwm.skipper[format]",
-    "jwm.skipper[redis]",
+    "jwm.cache[test, format, redis]"
 ]

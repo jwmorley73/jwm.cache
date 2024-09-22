@@ -8,11 +8,11 @@ try:
 except ModuleNotFoundError:
     HAS_TTL_REDIS_CACHE = False
 
-import jwm.cache.ttl.cache
+import jwm._cache.ttl.cache
 
 if HAS_TTL_REDIS_CACHE:
 
-    class RedisTTLCache(jwm.cache.ttl.cache.TTLCache):
+    class RedisTTLCache(jwm._cache.ttl.cache.TTLCache):
         "Sync redis TTL Cache implementation."
 
         def __init__(self, client: redis.asyncio.Redis) -> None:
@@ -76,7 +76,7 @@ if HAS_TTL_REDIS_CACHE:
 
             return count_
 
-    class AsyncRedisTTLCache(jwm.cache.ttl.cache.AsyncTTLCache):
+    class AsyncRedisTTLCache(jwm._cache.ttl.cache.AsyncTTLCache):
         "Async redis TTL Cache implementation."
 
         def __init__(self, client: redis.asyncio.Redis) -> None:
