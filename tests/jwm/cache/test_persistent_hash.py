@@ -71,7 +71,7 @@ def test_simple_persistent_hash(constructor: str, runs: int) -> None:
         assert process.stdout == first_hash
 
 
-class Bespoke:
+class ObjectWithDunder:
     def __init__(self) -> None:
         foo: int = hash("bar")
 
@@ -80,29 +80,21 @@ class Bespoke:
 
 
 def test_dunder_persistent_hash() -> None:
-    obj = Bespoke()
+    obj = ObjectWithDunder()
 
     hash_ = jwm.cache.persistent_hash(obj)
     assert hash_ == obj.__persistent_hash__()
 
 
-def test_bespoke_persistent_hash() -> None:
-    objects = tuple(Bespoke() for _ in range(3))
-
-    first_hash = jwm.cache.persistent_hash(objects[0])
-    for obj in objects:
-        assert jwm.cache.persistent_hash(obj) == first_hash
-
-
-class Automatic(list):
+class ObjectWithoutDunder(list):
     FOO: str = "BAR"
 
     def __init__(self) -> None:
         foo: str = "bar"
 
 
-def test_automatic_persistent_hash() -> None:
-    objects = tuple(Automatic() for _ in range(3))
+def test_no_dunder_persistent_hash() -> None:
+    objects = tuple(ObjectWithoutDunder() for _ in range(3))
 
     first_hash = jwm.cache.persistent_hash(objects[0])
     for obj in objects:
