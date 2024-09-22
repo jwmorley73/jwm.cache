@@ -4,8 +4,8 @@ import sys
 import types
 import typing
 
-MAX_HASH_MASK: int = pow(2, sys.hash_info.width) - 1
-"Used to ensure hashed integers are within the systems size_t"
+MAX_HASH_MASK: int = pow(2, sys.hash_info.width - 3) - 1
+"Used to ensure hash integers are within Py_size_t"
 
 
 def djb2(obj: bytes) -> int:
@@ -96,7 +96,7 @@ def persistent_hash(
     this will lower the security of your application and could lead to
     unexpected collisions.
 
-    The hash will be trimmed to your systems size_t.
+    The hash integers will be trimmed to your systems Py_size_t.
 
     You can control what persistent hash your objects return through the
     `__persistent_hash__` method. This is highly recommended for objects as
@@ -107,7 +107,7 @@ def persistent_hash(
         obj (Any): Object to hash
 
     Returns:
-        int: The object hash trimmed to size_t.
+        int: The object hash trimmed to the systems Py_size_t.
     """
     global INCOMPLETE, MAX_HASH_MASK
 
@@ -277,7 +277,7 @@ def hash_bound(
             False.
 
     Returns:
-        int: Hash of arguments. Size is dependent on the system size_t.
+        int: Hash of arguments. Hash is trimmed to the systems Py_size_t.
     """
     bound.apply_defaults()
 

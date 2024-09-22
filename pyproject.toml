@@ -14,7 +14,9 @@ redis = [
 ]
 
 test = [
-    "pytest"
+    "pytest",
+    "pytest-cov",
+    "coverage"
 ]
 
 format = [
@@ -25,3 +27,9 @@ format = [
 dev = [
     "jwm.cache[test, format, redis]"
 ]
+
+[tool.pytest.ini_options]
+minversion = 6.0
+console_output_style = "count"
+addopts = ["--import-mode=importlib"]
+testpaths = ["tests"]
