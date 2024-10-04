@@ -1,9 +1,9 @@
-import typing
 import pickle
-
-import jwm.cache
+import typing
 
 import pytest
+
+import jwm.cache
 
 
 @pytest.mark.parametrize(
@@ -18,8 +18,8 @@ import pytest
         (4, "5"),
         ["6", 7],
         {8, "9"},
-        {10: "11", "12": 13}
-    )
+        {10: "11", "12": 13},
+    ),
 )
 def test_pickle_serializer(value: typing.Any) -> None:
     serializer = jwm.cache.PickleSerializer()
@@ -29,13 +29,8 @@ def test_pickle_serializer(value: typing.Any) -> None:
 
     assert deserialized == value
 
-@pytest.mark.parametrize(
-    "value",
-    (
-        lambda x: x,
-        (x for x in range(10))
-    )
-)
+
+@pytest.mark.parametrize("value", (lambda x: x, (x for x in range(10))))
 def test_pickle_serializer_fail(value: typing.Any) -> None:
     serializer = jwm.cache.PickleSerializer()
 
@@ -44,16 +39,7 @@ def test_pickle_serializer_fail(value: typing.Any) -> None:
 
 
 @pytest.mark.parametrize(
-    "value",
-    (
-        None,
-        True,
-        False,
-        1,
-        "2",
-        ["3", 4],
-        {"5": "6", "7": 8}
-    )
+    "value", (None, True, False, 1, "2", ["3", 4], {"5": "6", "7": 8})
 )
 def test_json_serializer(value: typing.Any) -> None:
     serializer = jwm.cache.JsonSerializer()
@@ -63,13 +49,8 @@ def test_json_serializer(value: typing.Any) -> None:
 
     assert deserialized == value
 
-@pytest.mark.parametrize(
-    "value",
-    (
-        b"bytes",
-        lambda x: x
-    )
-)
+
+@pytest.mark.parametrize("value", (b"bytes", lambda x: x))
 def test_json_serializer_fail(value: typing.Any) -> None:
     serializer = jwm.cache.JsonSerializer()
 
