@@ -10,7 +10,7 @@ class LocalTTLCache(jwm._cache.ttl.cache.TTLCache):
         self._ttl_timers: dict[bytes, dict[bytes, threading.Timer]] = {}
         self._lock = threading.Lock()
 
-    def get(self, namespace: bytes, key: bytes) -> bytes:
+    def get(self, namespace: bytes, key: bytes) -> bytes | None:
         return self._cache.get(namespace, {}).get(key, None)
 
     def set(
@@ -89,7 +89,10 @@ class AsyncLocalTTLCache(jwm._cache.ttl.cache.AsyncTTLCache):
                 old_timer.cancel()
 
             timer = asyncio.get_running_loop().call_later(
-                ttl_seconds, LocalTTLCache._delete, (self, namespace, key)
+                ttl_seconds,
+                lambda: asyncio.create_task(
+                    AsyncLocalTTLCache._delete(self, namespace, key)
+                ),
             )
 
             namespace_timers[key] = timer
@@ -105,7 +108,7 @@ class AsyncLocalTTLCache(jwm._cache.ttl.cache.AsyncTTLCache):
 
             self._ttl_timers.pop(namespace, None)
 
-    def get_size(self, namespace: bytes) -> int:
+    async def get_size(self, namespace: bytes) -> int:
         return len(self._ttl_timers.get(namespace, {}))
 
     async def _delete(self, namespace: bytes, key: bytes) -> None:

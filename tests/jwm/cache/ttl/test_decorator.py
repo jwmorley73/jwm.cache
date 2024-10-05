@@ -1,4 +1,3 @@
-
 import jwm.cache
 
 
@@ -38,7 +37,9 @@ async def test_async_decorator() -> None:
 def sync_decorator_factory(x: str, y: int) -> tuple[str, int]:
     return (x, y)
 
+
 t = jwm.cache.ttl_cache()
+
 
 def test_sync_decorator_factory() -> None:
     a1 = sync_decorator_factory("a", 1)
