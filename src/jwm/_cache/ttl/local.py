@@ -68,9 +68,6 @@ class AsyncLocalTTLCache(jwm._cache.ttl.cache.AsyncTTLCache):
         self._ttl_timers: dict[bytes, dict[bytes, asyncio.TimerHandle]] = {}
         self._lock = asyncio.Lock()
 
-    async def get_size(self) -> int:
-        return sum((len(values_) for values_ in self._ttl_timers.values()))
-
     async def get(self, namespace: bytes, key: bytes) -> bytes:
         return self._cache.get(namespace, {}).get(key, None)
 
