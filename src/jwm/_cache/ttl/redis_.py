@@ -56,13 +56,12 @@ if HAS_TTL_REDIS_CACHE:
             cursor: int = 0
             while True:
                 response: tuple[int, list[bytes]] = self.client.scan(
-                    cursor=cursor,
-                    match=namespace + b"*"
+                    cursor=cursor, match=namespace + b"*"
                 )
                 cursor, batch_keys = response
 
                 keys.extend(batch_keys)
-                
+
                 if cursor == 0:
                     break
 
@@ -74,8 +73,7 @@ if HAS_TTL_REDIS_CACHE:
             cursor: int = 0
             while True:
                 response: tuple[int, list[bytes]] = self.client.scan(
-                    cursor=cursor,
-                    match=namespace + b"*"
+                    cursor=cursor, match=namespace + b"*"
                 )
                 cursor, batch_keys = response
 
@@ -128,8 +126,7 @@ if HAS_TTL_REDIS_CACHE:
             cursor: int = 0
             while True:
                 response: tuple[int, list[bytes]] = await self.client.scan(
-                    cursor=cursor,
-                    match=namespace + b"*"
+                    cursor=cursor, match=namespace + b"*"
                 )
                 cursor, batch_keys = response
 
@@ -146,13 +143,12 @@ if HAS_TTL_REDIS_CACHE:
             cursor: int = 0
             while True:
                 response: tuple[int, list[bytes]] = await self.client.scan(
-                    cursor=cursor,
-                    match=namespace + b"*"
+                    cursor=cursor, match=namespace + b"*"
                 )
                 cursor, batch_keys = response
 
                 count_ += len(batch_keys)
-                
+
                 if cursor == 0:
                     break
 
