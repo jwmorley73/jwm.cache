@@ -17,7 +17,8 @@ test = [
     "pytest",
     "pytest-cov",
     "pytest-asyncio",
-    "coverage"
+    "coverage",
+    "fakeredis"
 ]
 
 format = [

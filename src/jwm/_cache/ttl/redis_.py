@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import datetime
+
 try:
     import redis
     import redis.asyncio
@@ -42,37 +44,45 @@ if HAS_TTL_REDIS_CACHE:
         def set(
             self, namespace: bytes, key: bytes, value: bytes, ttl_seconds: float = 60
         ) -> None:
-            self.client.set(namespace + key, value, ex=ttl_seconds)
+            # Redis does not support ttl of zero
+            if int(ttl_seconds * 1_000) == 0:
+                self.client.delete(namespace + key)
+                return
+
+            self.client.set(namespace + key, value, px=int(ttl_seconds * 1_000))
 
         def clear(self, namespace: bytes) -> None:
-            pipeline = self.client.pipeline()
-
             keys: list[bytes] = []
-            cursor = 0
-            while cursor != 0:
-                cursor, batch_keys = pipeline.scan(
-                    match=f"{namespace}*".encode("utf-8")
+            cursor: int = 0
+            while True:
+                response: tuple[int, list[bytes]] = self.client.scan(
+                    cursor=cursor,
+                    match=namespace + b"*"
                 )
-                if batch_keys:
-                    keys += batch_keys
+                cursor, batch_keys = response
 
-            pipeline.delete(*batch_keys)
+                keys.extend(batch_keys)
+                
+                if cursor == 0:
+                    break
 
-            pipeline.execute()
+            if len(batch_keys) > 0:
+                self.client.delete(*batch_keys)
 
         def get_size(self, namespace: bytes) -> int:
-            pipeline = self.client.pipeline()
-
             count_: int = 0
-            cursor = 0
-            while cursor != 0:
-                cursor, batch_keys = pipeline.scan(
-                    match=f"{namespace}*".encode("utf-8")
+            cursor: int = 0
+            while True:
+                response: tuple[int, list[bytes]] = self.client.scan(
+                    cursor=cursor,
+                    match=namespace + b"*"
                 )
-                if batch_keys:
-                    count_ += len(batch_keys)
+                cursor, batch_keys = response
 
-            pipeline.execute()
+                count_ += len(batch_keys)
+
+                if cursor == 0:
+                    break
 
             return count_
 
@@ -106,36 +116,44 @@ if HAS_TTL_REDIS_CACHE:
         async def set(
             self, namespace: bytes, key: bytes, value: bytes, ttl_seconds: float = 60
         ) -> None:
-            await self.client.set(namespace + key, value, ex=ttl_seconds)
+            # Redis does not support ttl of zero
+            if int(ttl_seconds * 1_000) == 0:
+                await self.client.delete(namespace + key)
+                return
+
+            await self.client.set(namespace + key, value, px=int(ttl_seconds * 1_000))
 
         async def clear(self, namespace: bytes) -> None:
-            pipeline = self.client.pipeline()
-
             keys: list[bytes] = []
-            cursor = 0
-            while cursor != 0:
-                cursor, batch_keys = pipeline.scan(
-                    match=f"{namespace}*".encode("utf-8")
+            cursor: int = 0
+            while True:
+                response: tuple[int, list[bytes]] = await self.client.scan(
+                    cursor=cursor,
+                    match=namespace + b"*"
                 )
-                if batch_keys:
-                    keys += batch_keys
+                cursor, batch_keys = response
 
-            pipeline.delete(*batch_keys)
+                keys.extend(batch_keys)
 
-            await pipeline.execute()
+                if cursor == 0:
+                    break
+
+            if len(batch_keys) > 0:
+                await self.client.delete(*batch_keys)
 
         async def get_size(self, namespace: bytes) -> int:
-            pipeline = self.client.pipeline()
-
             count_: int = 0
-            cursor = 0
-            while cursor != 0:
-                cursor, batch_keys = pipeline.scan(
-                    match=f"{namespace}*".encode("utf-8")
+            cursor: int = 0
+            while True:
+                response: tuple[int, list[bytes]] = await self.client.scan(
+                    cursor=cursor,
+                    match=namespace + b"*"
                 )
-                if batch_keys:
-                    count_ += len(batch_keys)
+                cursor, batch_keys = response
 
-            await pipeline.execute()
+                count_ += len(batch_keys)
+                
+                if cursor == 0:
+                    break
 
             return count_
