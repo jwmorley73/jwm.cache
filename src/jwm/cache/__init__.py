@@ -6,7 +6,6 @@ from jwm._cache.serializers import *
 from jwm._cache.sync import *
 from jwm._cache.ttl.cache import *
 from jwm._cache.ttl.decorator import *
-from jwm._cache.ttl.default import *
 from jwm._cache.ttl.local import *
 from jwm._cache.ttl.redis_ import *
 
@@ -14,7 +13,6 @@ __all__ = [
     "Serializer",
     "PickleSerializer",
     "JsonSerializer",
-    "ForwardDeclared",
     "persistent_hash",
 ]
 

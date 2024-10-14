@@ -6,7 +6,6 @@ import uuid
 import jwm._cache.forward
 import jwm._cache.serializers
 import jwm._cache.ttl.cache
-import jwm._cache.ttl.default
 import jwm._cache.ttl.local
 import jwm._cache.ttl.wrapper
 
@@ -25,11 +24,11 @@ class TTLDecorator:
         cache: jwm._cache.ttl.cache.TTLCache | jwm._cache.ttl.cache.AsyncTTLCache,
         serializer: jwm._cache.serializers.Serializer,
     ) -> None:
-        self._ttl_seconds = ttl_seconds
-        self._typed = typed
-        self._identifier = identifier
-        self._cache = cache
-        self._serializer = serializer
+        self.ttl_seconds = ttl_seconds
+        self.typed = typed
+        self.identifier = identifier
+        self.cache = cache
+        self.serializer = serializer
 
     @typing.overload
     def __call__(
@@ -59,20 +58,20 @@ class TTLDecorator:
         if asyncio.iscoroutinefunction(func):
             return jwm._cache.ttl.wrapper.AsyncTTLWrapper[P0, T0](
                 func,
-                self._ttl_seconds,
-                self._typed,
-                self._identifier,
-                self._cache,
-                self._serializer,
+                self.ttl_seconds,
+                self.typed,
+                self.identifier,
+                self.cache,
+                self.serializer,
             )
         else:
             return jwm._cache.ttl.wrapper.TTLWrapper[P0, T0](
                 func,
-                self._ttl_seconds,
-                self._typed,
-                self._identifier,
-                self._cache,
-                self._serializer,
+                self.ttl_seconds,
+                self.typed,
+                self.identifier,
+                self.cache,
+                self.serializer,
             )
 
 
@@ -125,8 +124,8 @@ def ttl_cache(
     cache: (
         jwm._cache.ttl.cache.TTLCache
         | jwm._cache.ttl.cache.AsyncTTLCache
-        | typing.Literal["local", "async_local", "default"]
-    ) = "default",
+        | typing.Literal["local", "async_local"]
+    ) = "local",
     serializer: (
         jwm._cache.serializers.Serializer | typing.Literal["pickle", "json"]
     ) = "pickle",
@@ -171,9 +170,8 @@ def ttl_cache(
         identifier (str | None, optional): Used to allow multiple functions to
             share a cache. Defaults to a random string which isolates the
             functions.
-        cache (TTLCache | AsyncTTLCache | Literal["local", "async_local", "default"], optional):
-            Cache where the values will be stored. Defaults to "default" (which
-            will use the global default).
+        cache (TTLCache | AsyncTTLCache | Literal["local", "async_local"], optional):
+            Cache where the values will be stored. Defaults to "local".
         serializer (Serializer  |  Literal["pickle", "json"], optional):
             Serializer to use when creating keys and storing values in the
             cache. Defaults to "pickle".
@@ -200,8 +198,6 @@ def ttl_cache(
             cache = jwm._cache.ttl.local.LocalTTLCache()
         case "async_local":
             cache = jwm._cache.ttl.local.AsyncLocalTTLCache()
-        case "default":
-            cache = jwm._cache.ttl.default.DEFAULT_CACHE
         case _:
             pass
 
